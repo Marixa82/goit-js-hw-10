@@ -17,3 +17,29 @@ p.loader {
 p.loader.show {
   display: block;
 }
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 15px;
+  border-color: blue;
+  border-style: dashed;
+}
+.breed-select {
+  margin-bottom: 20px;
+  border-radius: 3px;
+  border-color: blue;
+  font-size: 15px;
+  border-style: dashed;
+}
+h2 {
+  text-align: center;
+  padding-top: 20px;
+}
+p {
+  font-size: 20;
+}
+body {
+  background-color: azure;
+  margin: 40px;
+}

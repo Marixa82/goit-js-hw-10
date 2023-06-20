@@ -1,10 +1,3 @@
-import SlimSelect from 'slim-select'
-new SlimSelect({
-    select: '#selectElement',
-    settings: {
-        openPosition: 'auto',
-    },
-});
 import Notiflix from 'notiflix';
 
 import { fetchBreeds, fetchCatByBreed } from "./cat-api";
@@ -14,55 +7,58 @@ const loader = document.querySelector('p.loader');
 const catInfoContainer = document.querySelector('div.cat-info');
 const error = document.querySelector('.error');
 
+breedSelect.style.display = 'none';
+loader.style.display = 'none';
+error.style.display = 'none';
+breedSelect.style.cursor = 'pointer';
 
-loader.style.display = 'block'
-error.style.display = 'none'
-breedSelect.style.cursor = 'pointer'
-
-function makeCatsOption(data) {
-    for (let i = 0; i < data.length; i++) {
-        const breed = data[i];
+function makeCatsOption(breeds) {
+    breedSelect.innerHTML = '';
+    breeds.forEach(breed => {
         let option = document.createElement('option');
-        option.value = i;
-        option.innerHTML = `${breed.name}`;
+        option.value = breed.id;
+        option.textContent = breed.name;
         breedSelect.appendChild(option);
-    }
+    });
 }
 fetchBreeds()
-    .then(data => {
+    .then(breeds => {
+        breedSelect.style.display = 'block';
         loader.style.display = 'none'
-        makeCatsOption(data);
+        makeCatsOption(breeds);
     }).catch(error => {
-        Notiflix.Notify.failure("Oops! Something went wrong! Try reloading the page!")
-        console.log(error)
+        loader.style.display = 'none';
+        Notiflix.Notify.failure(
+            'Oops! Something went wrong! Try reloading the page!'
+        );
+        console.log(error);
     });
-function createCatInfo(data) {
-    const cat = data[0];
-    const catInfo = `
-    <img src="${cat.url}" alt="Cat Image" width="300">
-    <h2>${cat.breeds[0].name}</h2>
-    <p>${cat.breeds[0].description}</p>
-    <p>Temperament: ${cat.breeds[0].temperament}</p>`;
+function createCatInfo(cat) {
+    const catInfo = `<img src="${cat.image}" width="600" alt="${cat.name}"><h2>${cat.name}</h2><p>${cat.description}</p><p>Temperament: ${cat.temperament}</p>`;
     catInfoContainer.innerHTML = catInfo;
+
 }
-breedSelect.addEventListener('change', () => {
+breedSelect.addEventListener('change', (evt) => {
     loader.style.display = 'block'
     error.style.display = 'none'
+    breedSelect.style.display = 'none';
+    catInfoContainer.style.display = 'none';
+    const breedId = evt.target.value;
 
-    breedSelect.style.cursor = 'pointer'
-    const breedId = breedSelect.value;
+    fetchCatByBreed(breedId).then(cat => {
+        createCatInfo(cat)
+        breedSelect.style.display = 'block';
+        loader.style.display = 'none';
+        catInfoContainer.style.display = 'block';
+    }).catch(error => {
+        loader.style.display = 'none';
+        Notiflix.Notify.failure('Oops! Something went wrong! Try reloading the page!');
+        breedSelect.style.display = 'block';
+        console.log(error);
+    })
+});
 
-    fetchCatByBreed(breedId)
-        .then(data => {
-            loader.style.display = 'none'
-            catInfoContainer.style.display = 'block'
-            createCatInfo(data);
-        })
-        .catch(error => { Notiflix.Notify.failure(error, "Oops! Something went wrong! Try reloading the page!") })
-        .finally(() => {
-            breedSelect.style.display = 'block';
-        })
-})
+
 
 
 
